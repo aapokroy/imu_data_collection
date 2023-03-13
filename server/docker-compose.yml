@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mqtt_broker:
+    image: eclipse-mosquitto
+    container_name: imu_mqtt_broker
+    restart: always
+    ports:
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+  file_server:
+    image: pokroy/imu_file_server:latest
+    container_name: imu_file_server
+    restart: always
+    ports:
+      - 8081:8000

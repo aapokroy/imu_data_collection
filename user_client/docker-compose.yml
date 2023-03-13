@@ -1,0 +1,13 @@
+version: '3'
+services:
+  imu_user_client:
+    container_name: imu_user_client
+    image: pokroy/imu_user_client:latest
+    restart: always
+    environment:
+    - config_path=/app/config.yml
+    volumes:
+      - ./config.yml:/app/config.yml
+      - ./sessions:/app/sessions
+    ports:
+      - 8080:8080

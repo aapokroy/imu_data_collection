@@ -1,0 +1,14 @@
+max_session_duration: 3600
+devices_update_interval: 300
+path:
+  sessions: ./sessions
+server:
+  ip: 127.0.0.1
+  mqtt:
+    broker:
+      port: 1883
+    topic:
+      control: /general/control
+      info: /general/info
+  file_server:
+    port: 8081

@@ -1,0 +1,15 @@
+[logger]
+messageFormat = '%(asctime)s [%(threadName)-14.14s] [%(levelname)-7.7s]  %(message)s'
+
+[server]
+runOnSave = true
+port = 8080
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+base="light"

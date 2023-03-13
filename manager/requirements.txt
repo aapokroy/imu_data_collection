@@ -1,0 +1,4 @@
+PyYAML==5.4.1
+paho-mqtt==1.6.1
+requests==2.28.2
+smbus2==0.4.2

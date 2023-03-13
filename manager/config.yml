@@ -1,0 +1,22 @@
+device_id: device_name
+request_timeout: 10
+path:
+  sessions: ./sessions
+server:
+  ip: 127.0.0.1
+  mqtt:
+    broker:
+      port: 1883
+    topic:
+      control: /general/control
+      info: /general/info
+  file_server:
+    port: 8081
+sensor_settings: {}
+i2c:
+  buses:
+  - 0
+  - 1
+  addresses:
+  - 104
+  - 105

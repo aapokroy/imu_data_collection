@@ -1,0 +1,15 @@
+version: '3'
+services:
+  imu_manager:
+    container_name: imu_manager
+    image: pokroy/imu_manager:latest
+    restart: always
+    environment:
+    - log_dir=/app/logs
+    - config_path=/app/config.yml
+    devices:
+    - /dev/i2c-0:/dev/i2c-0
+    - /dev/i2c-0:/dev/i2c-1
+    volumes:
+      - ./logs:/app/logs
+      - ./config.yml:/app/config.yml

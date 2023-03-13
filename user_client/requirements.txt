@@ -1,0 +1,7 @@
+PyYAML==5.4.1
+paho-mqtt==1.6.1
+urllib3==1.26.12
+uvicorn==0.18.3
+streamlit==1.19.0
+watchdog==2.1.9
+matplotlib
