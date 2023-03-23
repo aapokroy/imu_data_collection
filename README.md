@@ -93,9 +93,8 @@ To autorun the app on boot, edit the `/etc/rc.local` file and add the following 
 sudo mkdir /sys/fs/cgroup/systemd
 sudo mount -t cgroup -o none,name=systemd cgroup /sys/fs/cgroup/systemd
 
-docker pull pokroy/imu_manager:latest
-
-cd path/to/manager
+cd /root/imu_manager/
+docker-compose pull
 docker-compose up -d
 ```
 
