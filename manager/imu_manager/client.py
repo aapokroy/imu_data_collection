@@ -123,7 +123,7 @@ class Client(metaclass=Singleton):
                 self.__cmd_load_sensors_configurations(args={
                     'sensor_ids': list(new_sensor_ids)
                 })
-                self.__cmd_get_connected_sensors(self, {})
+                self.__cmd_get_connected_sensors(args={})
             command(args)
         except OSError as e:
             if e.errno == 6:
