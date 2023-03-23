@@ -695,6 +695,7 @@ def st_connected_sensors():
             )
 
 
+st.title('IMU data collection')
 st_server_connection()
 if client and client.is_connected:
     with st.sidebar:
