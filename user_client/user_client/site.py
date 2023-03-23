@@ -441,13 +441,16 @@ def st_new_session():
             max_value=cfg.max_session_duration
         )
     with cols[1]:
-        if st.checkbox('Add timestamp to session name'):
-            session_name = '{}_{}'.format(
-                session_name,
-                int(time.time())
-            )
-        if st.checkbox('Add number to session name'):
-            if os.path.isdir(os.path.join(cfg.path.sessions, session_name)):
+        name_conflict_option = st.selectbox(
+            'If session with this name already exists',
+            [
+                'overwrite existing session',
+                'add number to session name',
+                'add timestamp to session name'
+            ]
+        )
+        if os.path.isdir(os.path.join(cfg.path.sessions, session_name)):
+            if name_conflict_option == 'add number to session name':
                 session_names = os.listdir(cfg.path.sessions)
                 session_names = [
                     name for name in session_names
@@ -457,6 +460,11 @@ def st_new_session():
                 while f'{session_name}_{i}' in session_names:
                     i += 1
                 session_name = f'{session_name}_{i}'
+            elif name_conflict_option == 'add timestamp to session name':
+                session_name = '{}_{}'.format(
+                    session_name,
+                    int(time.time())
+                )
     submitted = st.button(
         'Start session', type='primary',
         use_container_width=True,

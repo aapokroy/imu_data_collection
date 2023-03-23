@@ -77,5 +77,6 @@ class Devices:
         for sensor_data in device_data['sensors']:
             sensor = Sensor(**sensor_data)
             device.sensors.append(sensor)
-        if device not in self.__devices:
-            self.__devices.append(device)
+        if device in self.__devices:
+            self.__devices.remove(device)
+        self.__devices.append(device)
