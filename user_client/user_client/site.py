@@ -18,6 +18,7 @@ from paho.mqtt.client import Client as MQTTClient
 
 from config import Config
 from constants import DLPF_ENUM, CLOCK_ENUM, GYRO_RANGE_ENUM, ACCEL_RANGE_ENUM
+from utils import TempDir, natural_keys, zipdir
 from streamlit_utils import rerun
 from streamlit_utils.message_logger import MessageType, Logger
 from session_processor import Session
@@ -179,6 +180,8 @@ def init_mqtt_client(client_id: str, mqtt_ip: str, mqtt_port: int):
         st.session_state.mqtt_connection_error = 'Connection timeout'
     except OSError:
         st.session_state.mqtt_connection_error = 'Network is unreachable'
+    except ValueError:
+        st.session_state.mqtt_connection_error = 'Invalid IP address'
 
 
 client = init_mqtt_client(
@@ -279,19 +282,29 @@ def st_manage_sessions():
         metadata_dir = os.path.join(session_dir, 'metadata')
         if os.path.isdir(session_dir) and os.path.isdir(metadata_dir):
             sessions.append(Session(session_dir))
+    sessions.sort(key=lambda x: natural_keys(x.name))
+    name2session = {session.name: session for session in sessions}
+    selected_sessions = st.multiselect(
+        'Select sessions to manage (All by default)',
+        options=[session.name for session in sessions]
+    )
+    selected_sessions = [name2session[name] for name in selected_sessions]
+    if not selected_sessions:
+        selected_sessions = sessions
+
     with st.expander('Sessions metadata'):
         data = {
-            'date': [session.date for session in sessions],
-            'time': [session.time for session in sessions],
-            'name': [session.name for session in sessions],
-            'duration': [session.duration for session in sessions],
-            'merged': [session.merged for session in sessions],
-            'decoded': [session.decoded for session in sessions],
+            'date': [session.date for session in selected_sessions],
+            'time': [session.time for session in selected_sessions],
+            'name': [session.name for session in selected_sessions],
+            'duration': [session.duration for session in selected_sessions],
+            'merged': [session.merged for session in selected_sessions],
+            'decoded': [session.decoded for session in selected_sessions],
         }
         for device in devices:
             data[device.id] = [
                 device.id in session.device_ids
-                for session in sessions
+                for session in selected_sessions
                 ]
         df = pd.DataFrame(data)
         df.sort_values(by=['date', 'time'], inplace=True, ascending=False)
@@ -299,16 +312,28 @@ def st_manage_sessions():
         st.dataframe(df, use_container_width=True)
 
     # Global session managemnet buttons
-    cols = st.columns(2)
+    cols = st.columns(4)
     with cols[0]:
         merge_all_sessions = st.button(
-            'Merge all sessions',
+            'Merge',
             type='primary',
             use_container_width=True
         )
     with cols[1]:
         decode_all_sessions = st.button(
-            'Decode all sessions',
+            'Decode',
+            type='primary',
+            use_container_width=True
+        )
+    with cols[2]:
+        download_sessions = st.button(
+            'Download',
+            type='primary',
+            use_container_width=True
+        )
+    with cols[3]:
+        delete_sessions = st.button(
+            'Delete',
             type='primary',
             use_container_width=True
         )
@@ -330,14 +355,32 @@ def st_manage_sessions():
             progress_percent = (i + 1) / len(sessions)
             progress_bar.progress(progress_percent, text=progress_text)
         st.experimental_rerun()
+    if download_sessions:
+        archive_path = './sessions.zip'
+        with TempDir(archive_path):
+            with st.spinner('Archiving sessions...'):
+                with zipfile.ZipFile(archive_path, 'w') as zipf:
+                    for session in selected_sessions:
+                        session_dir = os.path.join(cfg.path.sessions, session.name)
+                        zipdir(session_dir, zipf)
+            st.download_button(
+                label='Download archive',
+                data=open(archive_path, 'rb').read(),
+                file_name='./sessions.zip',
+                mime='application/zip',
+                use_container_width=True
+            )
+    if delete_sessions:
+        for session in selected_sessions:
+            shutil.rmtree(os.path.join(cfg.path.sessions, session.name))
 
     # Single session management
     st.write('---')
-    sessions.sort(key=lambda x: x.name)
-    name2session = {session.name: session for session in sessions}
     session_name = st.selectbox('Session name', name2session.keys())
     if session_name:
         session = name2session[session_name]
+        session_dir = os.path.join(cfg.path.sessions, session.name)
+
         # Session status
         if session.decoded:
             st.success('Session is merged and decoded')
@@ -372,7 +415,6 @@ def st_manage_sessions():
 
         # Session data
         if session.decoded:
-            session_dir = os.path.join(cfg.path.sessions, session.name)
             with st.expander('Session data'):
                 files = []
                 for file in os.listdir(session_dir):
@@ -425,9 +467,6 @@ def st_manage_sessions():
                     session.merge()
                     session.decode()
                     st.experimental_rerun()
-        if st.button("Delete session", use_container_width=True):
-            shutil.rmtree(session_dir)
-            st.experimental_rerun()
 
 
 def st_new_session():
