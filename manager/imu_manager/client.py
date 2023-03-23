@@ -204,7 +204,7 @@ class Client(metaclass=Singleton):
         sensor_ids = self.__filter_sensor_ids(args['sensor_ids'])
         for sensor_id, settings in self.cfg.sensor_settings.items():
             if sensor_id in self.manager.sensors and sensor_id in sensor_ids:
-                self.manager.configurate_sensor(sensor_id, **settings)
+                self.manager.configure_sensor(sensor_id, **settings)
         self.__publish(MessageType.SUCCESS, 'Sensor configurations loaded')
 
     def __cmd_reset_sensors(self, args: Dict):
@@ -216,14 +216,14 @@ class Client(metaclass=Singleton):
         self.cfg.save()
         self.__publish(MessageType.SUCCESS, 'Sensors reseted')
 
-    def __cmd_configurate_sensors(self, args: Dict):
+    def __cmd_configure_sensors(self, args: Dict):
         sensor_ids = self.__filter_sensor_ids(args['sensor_ids'])
         del args['sensor_ids']
         for sensor_id in sensor_ids:
-            self.manager.configurate_sensor(sensor_id, **args)
+            self.manager.configure_sensor(sensor_id, **args)
             self.cfg.sensor_settings[sensor_id] = args.copy()
         self.cfg.save()
-        self.__publish(MessageType.SUCCESS, 'Sensors configurated')
+        self.__publish(MessageType.SUCCESS, 'Sensors configured')
 
     def __cmd_calibrate_sensors(self, args: Dict):
         sensor_ids = self.__filter_sensor_ids(args['sensor_ids'])
@@ -239,7 +239,7 @@ class Client(metaclass=Singleton):
         archive_name = f'{session_name}_{self.cfg.device_id}'
         archive_path = f'{archive_name}.zip'
         with TempDir([session_path, archive_path]):
-            self.manager.start_session(session_path, session_name, duration)
+            session_info = self.manager.start_session(session_path, session_name, duration)
             shutil.make_archive(archive_name, 'zip', session_name)
             with open(f'{archive_name}.zip', 'rb') as f:
                 response = requests.post(
@@ -262,5 +262,14 @@ class Client(metaclass=Singleton):
                         }
                     }
                     self.__publish(MessageType.DATA, msg)
-            msg = f'Session "{session_name}" finished'
-            self.__publish(MessageType.SUCCESS, msg)
+            overflow_encountered = False
+            for overflows in session_info['overflows'].values():
+                if overflows:
+                    overflow_encountered = True
+                    break
+            if overflow_encountered:
+                msg = f'Session "{session_name}" finished with overflows'
+                self.__publish(MessageType.WARNING, msg)
+            else:
+                msg = f'Session "{session_name}" finished'
+                self.__publish(MessageType.SUCCESS, msg)

@@ -30,7 +30,7 @@ class Logger:
                     elif msg_type == MessageType.SUCCESS:
                         prefix = ':green[SUCCESS]'
                     elif msg_type == MessageType.WARNING:
-                        prefix = ':yellow[WARNING]'
+                        prefix = ':orange[WARNING]'
                     elif msg_type == MessageType.INFO:
                         prefix = ':blue[INFO]'
                     formated_lines.append(f'{prefix}: {msg}')

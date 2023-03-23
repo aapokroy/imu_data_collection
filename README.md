@@ -25,7 +25,7 @@ Data is collected using MPU-6050 IMU sensors. The sensors are connected via I2C 
 
 Sensor hubs are connected to a broker server via MQTT protocol. The broker server consists of a Mosquitto broker server and a simple FastAPI data transfer server.
 
-The data is collected using a user client. The client is a simple streamlit web application that allows the user to connect to the broker server, configurate sensors, run the data collection and download the collected data.
+The data is collected using a user client. The client is a simple streamlit web application that allows the user to connect to the broker server, configure sensors, run the data collection and download the collected data.
 
 ## Setup
 ### Broker server setup
@@ -104,7 +104,8 @@ After rebooting the board, the app should be running.
 ### Connect sensors to the board
 MPU-6050 sensors can be switched between 2 different I2C addresses. So you can connect only 2 sensors to each I2C bus. And Orange Pi Zero has 2 I2C buses. So you can connect up to 4 sensors to each hub.
 
-To connect more sensors, you can use a multiplexer like TCA9548A. If you use raspberry pi, you can simply set up more I2C buses in `boot/config.txt` file.
+To connect more sensors, you can use a multiplexer like TCA9548A. If you use raspberry pi, you can simply set up more I2C buses in `boot/config.txt` file. Keep in mind that connecting more sensors can lead to lower sampling rate.
+
 
 Either way, you need to wire the sensors to the board. And then set up the `config.yml` file to match used I2C buses and addresses. Sensor hub will scan all listed I2C buses and addresses and connect to the sensors if they are available.
 
@@ -124,6 +125,13 @@ Default calibration settings should be good enough for most applications.
 
 ### Collect
 Data is collected in sessions. To start a new session, move to the `New session` tab, enter session name and duration then press the `Start session` button.
+
+#### Overflows
+If you see message 'Session finished with overflow', it means that some of the sensor's FIFO buffers overflowed. This can happen if sampling rate is too high.
+
+You can lower the sampling rate by increasing `sample rate divider` or by setting `DLPF mode` to 256 in the `Configure sensors` tab.
+
+This can also happen if you are using too many sensors on one bus/hub.
 
 ### Merge, decode and download
 Each sensor hub will send its data separately. So session parts need to be merged together.

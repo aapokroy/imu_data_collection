@@ -44,7 +44,7 @@ class Manager(metaclass=Singleton):
         for sensor_id in self.sensors:
             self.reset_sensor(sensor_id)
 
-    def configurate_sensor(self, sensor_id: str,
+    def configure_sensor(self, sensor_id: str,
                            clock_source: int, dlpf_mode: int, rate: int,
                            full_scale_accel_range: int,
                            full_scale_gyro_range: int,
@@ -64,7 +64,7 @@ class Manager(metaclass=Singleton):
         sensor.y_gyro_fifo_enabled = y_gyro_fifo_enabled
         sensor.z_gyro_fifo_enabled = z_gyro_fifo_enabled
 
-    def configurate_sensors(self, clock_source: int, dlpf_mode: int, rate: int,
+    def configure_sensors(self, clock_source: int, dlpf_mode: int, rate: int,
                             full_scale_accel_range: int,
                             full_scale_gyro_range: int,
                             accel_fifo_enabled: bool,
@@ -73,7 +73,7 @@ class Manager(metaclass=Singleton):
                             z_gyro_fifo_enabled: bool):
         """Configure all sensors"""
         for sensor_id in self.sensors:
-            self.configurate_sensor(
+            self.configure_sensor(
                 sensor_id, clock_source, dlpf_mode, rate,
                 full_scale_accel_range, full_scale_gyro_range,
                 accel_fifo_enabled,
@@ -108,7 +108,7 @@ class Manager(metaclass=Singleton):
             )
 
     def start_session(self, session_path: str, session_name: str,
-                      duration: float):
+                      duration: float) -> dict:
         """Start data collection session"""
         metadata_path = os.path.join(session_path, 'metadata')
         raw_data_path = os.path.join(session_path, 'raw_data')
@@ -186,3 +186,4 @@ class Manager(metaclass=Singleton):
         )
         with open(session_info_path, 'w') as f:
             yaml.dump(session_info, f, sort_keys=False)
+        return session_info

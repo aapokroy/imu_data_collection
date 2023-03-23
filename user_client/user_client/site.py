@@ -446,7 +446,7 @@ def st_manage_sessions():
                         except pd.errors.EmptyDataError:
                             st.warning((
                                 'Data file is empty, '
-                                'probably corresponding sensor is not configurated.'
+                                'probably corresponding sensor is not configured.'
                             ))
 
         # Control buttons
@@ -616,7 +616,7 @@ def st_calibrate_sensors():
     return command, args
 
 
-def st_configurate_sensors():
+def st_configure_sensors():
     """Streamlit UI for sensor configuration."""
     rate_col1, rate_col2 = st.columns(2)
     with rate_col1:
@@ -642,7 +642,7 @@ def st_configurate_sensors():
         x_gyro_fifo_enabled = st.checkbox("X gyro fifo enabled", True)
         y_gyro_fifo_enabled = st.checkbox("Y gyro fifo enabled", True)
         z_gyro_fifo_enabled = st.checkbox("Z gyro fifo enabled", True)
-    command = 'configurate_sensors'
+    command = 'configure_sensors'
     args = {
         'clock_source': CLOCK_ENUM[clock_type],
         'dlpf_mode': DLPF_ENUM[dlpf],
@@ -712,7 +712,7 @@ if client and client.is_connected:
     st.header('Sensors')
     tabs = st.tabs([
         'Connected sensors',
-        'Configurate sensors',
+        'Configure sensors',
         'Calibrate sensors',
         'Reset sensors'
     ])
@@ -720,8 +720,8 @@ if client and client.is_connected:
         st_connected_sensors()
     with tabs[1]:
         st_sensor_command_wrapper(
-            'Configurate sensors',
-            st_configurate_sensors
+            'Configure sensors',
+            st_configure_sensors
         )
     with tabs[2]:
         st_sensor_command_wrapper(
