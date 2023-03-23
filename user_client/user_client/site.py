@@ -703,7 +703,7 @@ if client and client.is_connected:
         logger()
 
     st.header('Sessions')
-    session_tabs = st.tabs(['New session', 'Manage session'])
+    session_tabs = st.tabs(['New session', 'Manage sessions'])
     with session_tabs[0]:
         st_new_session()
     with session_tabs[1]:
