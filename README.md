@@ -125,7 +125,7 @@ Make sure that the sensors are flat on the table and not moving during calibrati
 Default calibration settings should be good enough for most applications.
 
 ### Collect
-Data is collected in sessions. To start a new session, press move to the 'New session' tab, enter session name and duration and press the `Start session` button.
+Data is collected in sessions. To start a new session, move to the `New session` tab, enter session name and duration then press the `Start session` button.
 
 ### Merge, decode and download
 Each sensor hub will send its data separately. So session parts need to be merged together.
