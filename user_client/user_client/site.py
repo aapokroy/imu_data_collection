@@ -488,7 +488,8 @@ def st_new_session():
                 'overwrite existing session'
             ]
         )
-        if os.path.isdir(os.path.join(cfg.path.sessions, session_name)):
+        if name_is_valid and \
+                os.path.isdir(os.path.join(cfg.path.sessions, session_name)):
             if name_conflict_option == 'add number to session name':
                 session_names = os.listdir(cfg.path.sessions)
                 session_names = [
