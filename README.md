@@ -2,7 +2,6 @@
 This is a system for creating a dataset of IMU data to use in machine learning applications.
 
 ## Table of contents
-- [Table of contents](#table-of-contents)
 - [Project structure](#project-structure)
 - [Setup](#setup)
   - [Broker server setup](#broker-server-setup)
