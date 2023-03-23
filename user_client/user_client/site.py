@@ -292,24 +292,24 @@ def st_manage_sessions():
     if not selected_sessions:
         selected_sessions = sessions
 
-    with st.expander('Sessions metadata'):
-        data = {
-            'date': [session.date for session in selected_sessions],
-            'time': [session.time for session in selected_sessions],
-            'name': [session.name for session in selected_sessions],
-            'duration': [session.duration for session in selected_sessions],
-            'merged': [session.merged for session in selected_sessions],
-            'decoded': [session.decoded for session in selected_sessions],
-        }
-        for device in devices:
-            data[device.id] = [
-                device.id in session.device_ids
-                for session in selected_sessions
-                ]
-        df = pd.DataFrame(data)
-        df.sort_values(by=['date', 'time'], inplace=True, ascending=False)
-        df.reset_index(drop=True, inplace=True)
-        st.dataframe(df, use_container_width=True)
+    # Sessions metadata
+    data = {
+        'date': [session.date for session in selected_sessions],
+        'time': [session.time for session in selected_sessions],
+        'name': [session.name for session in selected_sessions],
+        'duration': [session.duration for session in selected_sessions],
+        'merged': [session.merged for session in selected_sessions],
+        'decoded': [session.decoded for session in selected_sessions],
+    }
+    for device in devices:
+        data[device.id] = [
+            device.id in session.device_ids
+            for session in selected_sessions
+            ]
+    df = pd.DataFrame(data)
+    df.sort_values(by=['date', 'time'], inplace=True, ascending=False)
+    df.reset_index(drop=True, inplace=True)
+    st.dataframe(df, use_container_width=True)
 
     # Global session managemnet buttons
     cols = st.columns(4)
@@ -483,9 +483,9 @@ def st_new_session():
         name_conflict_option = st.selectbox(
             'If session with this name already exists',
             [
-                'overwrite existing session',
                 'add number to session name',
-                'add timestamp to session name'
+                'add timestamp to session name',
+                'overwrite existing session'
             ]
         )
         if os.path.isdir(os.path.join(cfg.path.sessions, session_name)):
