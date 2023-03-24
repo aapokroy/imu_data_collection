@@ -12,36 +12,56 @@ class MessageType(IntEnum):
     DATA = 4
 
 
+COLORED_MESSAGE_TYPE = {
+    MessageType.ERROR: ':red[ERROR]',
+    MessageType.SUCCESS: ':green[SUCCESS]',
+    MessageType.WARNING: ':orange[WARNING]',
+    MessageType.INFO: ':blue[INFO]',
+    MessageType.DATA: ':violet[DATA]',
+}
+
+
 class Logger:
     """Streamlit widget for displaying log messages from different sources."""
     def __init__(self):
-        self.__lines = {}
+        self.__lines = []
+        self.__sources = []
+        self.__source_max_len = 0
+        self.__colored_sources = {}
 
     def __call__(self):
-        if not self.__lines:
-            return
-        sources = list(self.__lines.keys())
-        tabs = st.tabs(sources)
-        for source, tab in zip(sources, tabs):
-            with tab:
-                formated_lines = []
-                for t, msg_type, msg in self.__lines[source][::-1]:
-                    prefix = ''
-                    if msg_type == MessageType.ERROR:
-                        prefix = ':red[ERROR]'
-                    elif msg_type == MessageType.SUCCESS:
-                        prefix = ':green[SUCCESS]'
-                    elif msg_type == MessageType.WARNING:
-                        prefix = ':orange[WARNING]'
-                    elif msg_type == MessageType.INFO:
-                        prefix = ':blue[INFO]'
-                    formated_lines.append(f'[{t}] [{prefix}] {msg}')
-                st.markdown('  \n'.join(formated_lines))
+        if self.__lines:
+            st.title('Messages')
+            clear_button = st.button(
+                label='Clear',
+                use_container_width=True
+            )
+            if clear_button:
+                self.clear()
+        if self.__lines:
+            st.markdown('  \n'.join(self.__lines[::-1]))
+
+    def clear(self):
+        self.__lines = []
+
+    def format_line(self, t: str, source: str,
+                    msg_type: MessageType, msg: str) -> str:
+        msg_type = COLORED_MESSAGE_TYPE[msg_type]
+        source = self.__colored_sources[source]
+        return f'[{t}] [{source}] [{msg_type}] {msg}'
 
     def log(self, source: str, msg_type: MessageType, msg: str):
-        if source not in self.__lines:
-            self.__lines[source] = []
-        self.__lines[source].append((time.strftime('%X'), msg_type, msg))
+        if source not in self.__sources:
+            self.__sources.append(source)
+            self.__source_max_len = max(self.__source_max_len, len(source))
+            colors = ['blue', 'orange', 'violet', 'red', 'green']
+            colors = [colors[i % len(colors)] for i in range(len(self.__sources))]
+            self.__colored_sources = {
+                source: f':{color}[{source: <{self.__source_max_len}}]'
+                for source, color in zip(self.__sources, colors)
+            }
+        line = self.format_line(time.strftime('%H:%M:%S'), source, msg_type, msg)
+        self.__lines.append(line)
 
     def error(self, source: str, msg: str):
         self.log(source, MessageType.ERROR, msg)
